@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 //middleware
 app.use(cors());
 app.use(express.json());
@@ -24,6 +24,7 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     const artworkDB = client.db("artworkDB");
+    const FavoriteCollection = artworkDB.collection("favorite");
     const artworkCollection = artworkDB.collection("artwork");
     // POST route to receive form data
     app.post("/artworks", async (req, res) => {
@@ -35,12 +36,81 @@ async function run() {
     });
     //get data database to server
     app.get("/artworks", async (req, res) => {
-      try{
+      try {
         const result = await artworkCollection.find({}).toArray();
         res.send(result);
+      } catch (err) {
+        res.status(500).send({ error: err.message });
       }
-      catch(err){
-        res.status(500).send({error:err.message});
+    });
+
+    // GET artworks sorted by newest (recent)
+    app.get("/artworks/recent", async (req, res) => {
+      try {
+        const result = await artworkCollection
+          .find({})
+          .sort({ uploadTime: -1 })
+          .limit(6)
+          .toArray();
+        res.send(result);
+      } catch (err) {
+        res.status(500).send({ error: err.message });
+      }
+    });
+    //Delete operation
+    app.delete("/artworks/:id", async (req, res) => {
+      const id = req.params.id;
+      try {
+        const result = await artworkCollection.deleteOne({
+          _id: new ObjectId(id),
+        });
+        if (result.deletedCount === 0) {
+          return res.status(404).send({ message: "Item not found" });
+        }
+      } catch (error) {
+        res.status(500).send({ error: error.message });
+      }
+    });
+
+    //Update data
+    app.patch("/artworks/:id", async (req, res) => {
+      const id = req.params.id;
+      const updatedData = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $inc: { totalLike: 1 },
+      };
+      const result = await artworkCollection.updateOne(filter, {
+        $set: updatedData,
+      });
+      res.send(result);
+    });
+
+    //insert data for my Favorite
+    app.post("/favorite", async (req, res) => {
+      const data = req.body;
+      const result = await FavoriteCollection.insertOne(data);
+      res.send(result);
+    });
+
+    //get favorite data
+    app.get("/favorite", async (req, res) => {
+      try {
+        const result = await FavoriteCollection.find({}).toArray();
+        res.send(result);
+      } catch (err) {
+        res.status(500).send({ error: err.message });
+      }
+    });
+    //delete favorite data
+    app.delete("/favorite/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await FavoriteCollection.deleteOne(query);
+      if (result.deletedCount > 0) {
+        res.send({ success: true, message: "Favorite removed successfully" });
+      } else {
+        res.send({ success: false, message: "Item not found" });
       }
     });
 
