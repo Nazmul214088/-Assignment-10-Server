@@ -5,7 +5,12 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(
+  cors({
+    origin: ["https://artify-server-site-six.vercel.app/"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 const uri =
@@ -175,7 +180,7 @@ async function run() {
     }
   });
 
-  // ✅ One-time repair: recalc totalLike from likes collection
+  // One-time repair: recalc totalLike from likes collection
   app.post("/admin/recalculate-likes", async (req, res) => {
     try {
       const grouped = await likesCollection
