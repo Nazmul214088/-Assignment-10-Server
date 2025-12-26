@@ -73,7 +73,7 @@ async function run() {
     }
   });
 
-  // ✅ Get one artwork by id
+  // Get one artwork by id
   app.get("/artworks/:id", async (req, res) => {
     try {
       const { id } = req.params;
