@@ -13,8 +13,7 @@ app.use(
 );
 app.use(express.json());
 
-const uri =
-  "mongodb+srv://ArtworkDatabaseUser:v5jVPbdLVXdMFo1s@artify-server.8cutdod.mongodb.net/?appName=artify-server";
+const uri = process.env.MONGODB_URI;
 
 const client = new MongoClient(uri, {
   serverApi: {
@@ -297,4 +296,5 @@ async function run() {
 
 run().catch(console.dir);
 
-app.listen(port, () => console.log(`Server running on port ${port}`));
+// app.listen(port, () => console.log(`Server running on port ${port}`));
+module.exports = app;
