@@ -7,7 +7,7 @@ const port = process.env.PORT || 5000;
 
 app.use(
   cors({
-    origin: ["https://artify-server-site-six.vercel.app/"],
+    origin: ["http://localhost:5173", "https://artworks-nazmul.netlify.app/"],
     credentials: true,
   })
 );
