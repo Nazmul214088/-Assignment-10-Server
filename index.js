@@ -7,7 +7,7 @@ const port = process.env.PORT || 5000;
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://artworks-nazmul.netlify.app/"],
+    origin: ["http://localhost:5173", "https://artify-nazmul.netlify.app"],
     credentials: true,
   })
 );
@@ -32,6 +32,9 @@ async function run() {
   const favoriteCollection = artworkDB.collection("favorite");
   const likesCollection = artworkDB.collection("likes");
 
+  app.get("/", (req, res) => {
+    res.send("Server is running");
+  });
   // same user can like same artwork only once
   await likesCollection.createIndex(
     { artworkId: 1, userEmail: 1 },
