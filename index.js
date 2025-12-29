@@ -6,18 +6,28 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "https://artify-server-site-six.vercel.app/",
-    ],
-    credentials: true,
-  })
-);
-app.use(express.json());
+//firebase admin 
+// const admin = require("firebase-admin");
+// const decoded = Buffer.from(process.env.FIREBASE_SERVICE_KEY, "base64").toString("utf-8");
+// const serviceAccount= JSON.parse(decoded);
+// admin.initializeApp({
+//   credential: admin.credential.cert(serviceAccount)
+// });
 
-const uri = "mongodb+srv://ArtworkDatabaseUser:v5jVPbdLVXdMFo1s@artify-server.8cutdod.mongodb.net/?appName=artify-server";
+
+//Middlewate
+app.use(cors());
+app.use(express.json());
+// const verifyFirebaseToken = (req,res, next)=>{
+//   const authorization = req.headers.authorization;
+//   if(!authorization){
+//     return res.status(401).send({message: "Unauthorized access"})
+//   }
+//   const token = authorization.split(' ')[1];
+//   //next()
+// }
+
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@artify-server.8cutdod.mongodb.net/?appName=artify-server`;
 
 const client = new MongoClient(uri, {
   serverApi: {
@@ -217,7 +227,7 @@ async function run() {
         return res.send({ success: false, message: "Email required" });
       }
 
-      // ✅ Check if already added
+      // Check if already added
       const alreadyAdded = await favoriteCollection.findOne({
         artworkId: favorite._id,
         myEmail: email,
@@ -266,7 +276,7 @@ async function run() {
     try {
       const { id } = req.params;
 
-      // ✅ Prevent invalid ObjectId crash
+      //Prevent invalid ObjectId crash
       if (!ObjectId.isValid(id)) {
         return res.send({
           success: false,
