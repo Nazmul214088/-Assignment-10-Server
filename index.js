@@ -6,26 +6,9 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = process.env.PORT || 5000;
 
-//firebase admin 
-// const admin = require("firebase-admin");
-// const decoded = Buffer.from(process.env.FIREBASE_SERVICE_KEY, "base64").toString("utf-8");
-// const serviceAccount= JSON.parse(decoded);
-// admin.initializeApp({
-//   credential: admin.credential.cert(serviceAccount)
-// });
-
-
-//Middlewate
+//Middleware
 app.use(cors());
 app.use(express.json());
-// const verifyFirebaseToken = (req,res, next)=>{
-//   const authorization = req.headers.authorization;
-//   if(!authorization){
-//     return res.status(401).send({message: "Unauthorized access"})
-//   }
-//   const token = authorization.split(' ')[1];
-//   //next()
-// }
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@artify-server.8cutdod.mongodb.net/?appName=artify-server`;
 
@@ -306,5 +289,7 @@ async function run() {
 }
 
 run().catch(console.dir);
-
+app.get("/", (req, res) => {
+    res.send("Artify Server is Running");
+});
 app.listen(port, () => console.log(`Server running on port ${port}`));
