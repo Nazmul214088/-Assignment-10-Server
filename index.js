@@ -1,17 +1,20 @@
-require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const dns = require("dns");
+const app = express();
+require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
-const app = express();
-const port = process.env.PORT || 5000;
+// Change DNS
+dns.setServers(["1.1.1.1", "8.8.8.8"]);
+const port = process.env.PORT || 3000;
 
 //Middleware
 app.use(cors());
 app.use(express.json());
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@artify-server.8cutdod.mongodb.net/?appName=artify-server`;
-
+// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ntezfiz.mongodb.net/?appName=Cluster0`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.brjllhv.mongodb.net/?appName=Cluster0`;
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -31,7 +34,7 @@ async function run() {
   // same user can like same artwork only once
   await likesCollection.createIndex(
     { artworkId: 1, userEmail: 1 },
-    { unique: true }
+    { unique: true },
   );
 
   // ---------- ARTWORKS ----------
@@ -94,7 +97,7 @@ async function run() {
 
       const result = await artworkCollection.updateOne(
         { _id: new ObjectId(id) },
-        { $set: updatedData }
+        { $set: updatedData },
       );
 
       res.send(result);
@@ -143,12 +146,12 @@ async function run() {
       // increment like counter
       await artworkCollection.updateOne(
         { _id: artworkId },
-        { $inc: { totalLike: 1 } }
+        { $inc: { totalLike: 1 } },
       );
 
       const fresh = await artworkCollection.findOne(
         { _id: artworkId },
-        { projection: { totalLike: 1 } }
+        { projection: { totalLike: 1 } },
       );
 
       res.send({
@@ -162,7 +165,7 @@ async function run() {
         const artworkId = new ObjectId(req.params.id);
         const fresh = await artworkCollection.findOne(
           { _id: artworkId },
-          { projection: { totalLike: 1 } }
+          { projection: { totalLike: 1 } },
         );
 
         return res.status(409).send({
@@ -290,6 +293,6 @@ async function run() {
 
 run().catch(console.dir);
 app.get("/", (req, res) => {
-    res.send("Artify Server is Running");
+  res.send("Artify Server is Running");
 });
 app.listen(port, () => console.log(`Server running on port ${port}`));
